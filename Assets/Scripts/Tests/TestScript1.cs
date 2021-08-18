@@ -12,7 +12,10 @@ public class BowlingGameShould
     public void config() 
     {
         bowlingGame = new BowlingGame();
+        
+        int[] pineAmount = { 10, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
+        bowlingGame.setTotalPineAmount(pineAmount);
     }
 
     [Test]
@@ -25,17 +28,43 @@ public class BowlingGameShould
         Assert.AreEqual(10, turns);
     }
 
+    [Test]
+    public void HaveTenMaxPinePerTurn()
+    {
+
+        //Given
+        bool exceedsMaxPineAmount = false;
+
+        //When
+        foreach (int i in bowlingGame.getTotalPineAmount())
+        {
+            if (i > 10) exceedsMaxPineAmount = true;
+        }
+
+        //Then
+        Assert.AreEqual(false, exceedsMaxPineAmount);
+    }
+
 
 }
 
 public class BowlingGame 
 {
-    int[] cantidadBolosTirados = new int[10];
+    int[] totalPineAmount = new int[10];
     // int[] isStrike;
 
     public int getTurns() 
     {
-        return cantidadBolosTirados.Length;
+        return totalPineAmount.Length;
+    }
+
+    public int[] getTotalPineAmount() 
+    {
+        return totalPineAmount;
+    }
+    public void setTotalPineAmount(int[] pineAmount)
+    {
+        this.totalPineAmount = pineAmount;
     }
 
 }
