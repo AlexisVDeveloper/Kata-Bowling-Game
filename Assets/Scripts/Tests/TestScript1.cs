@@ -12,10 +12,21 @@ public class BowlingGameShould
     public void config() 
     {
         bowlingGame = new BowlingGame();
-        
-        int[,] pineAmount = { { 3, 4 }, { 10, 0 }, { 5, 0 }, { 2, 0 }, { 3, 3 }, { 3, 4 }, { 10, 0 }, { 5, 5 }, { 2, 0 }, { 3, 3 } };
 
-        bowlingGame.setTotalPineAmount(pineAmount);
+        List<Turn> turns = new List<Turn>(10);
+
+        turns.Add(new Turn(3, 7));
+        turns.Add(new Turn(10, 0));
+        turns.Add(new Turn(2, 0));
+        turns.Add(new Turn(3, 3));
+        turns.Add(new Turn(3, 4));
+        turns.Add(new Turn(10, 0));
+        turns.Add(new Turn(5, 5));
+        turns.Add(new Turn(2, 0));
+        turns.Add(new Turn(3, 3));
+        turns.Add(new Turn(3, 2));
+
+        bowlingGame.setTotalPineAmount(turns);
     }
 
     [Test]
@@ -36,9 +47,9 @@ public class BowlingGameShould
         bool exceedsMaxPineAmount = false;
 
         //When
-        foreach (int i in bowlingGame.getTotalPineAmount())
+        foreach (Turn turn in bowlingGame.getTotalPineAmount())
         {
-            if (i > 10) exceedsMaxPineAmount = true;
+            if (turn.getTurnScore() > 10) exceedsMaxPineAmount = true;
         }
 
         //Then
@@ -49,35 +60,161 @@ public class BowlingGameShould
     public void ScoreOnTurnEqualsSumOfPines()
     {
 
-        //When
-        int turnScore = bowlingGame.sumTurnPines(0);
+        int turnScore = bowlingGame.getTotalPineAmount()[0].getThrowedPines()[0] + bowlingGame.getTotalPineAmount()[0].getThrowedPines()[1];
 
         //Then
-        Assert.AreEqual(7, turnScore);
+        Assert.AreEqual(10, turnScore);
+    }
+
+    [Test]
+    public void ScoreAllPinesWithoutStrikes()
+    {
+        //Then
+        Assert.AreEqual(68, bowlingGame.sumAllPines());
+    }
+
+    [Test]
+    public void DetectSpares()
+    {
+        bool isSpare = bowlingGame.getTotalPineAmount()[0].isSpare();
+
+        //Then
+        Assert.IsTrue(isSpare);
+    }
+    [Test]
+    public void DetectStrikes()
+    {
+        bool isStrike = bowlingGame.getTotalPineAmount()[1].isStrike();
+
+        //Then
+        Assert.IsTrue(isStrike);
+    }
+    [Test]
+    public void GetTotalScore()
+    {
+        int totalScore = bowlingGame.getTotalScore();
+        
+        //Then
+        Assert.AreEqual(80, totalScore);
     }
 
 }
 
 public class BowlingGame 
 {
-    int[,] totalPineAmount = new int[10,2];
-    // int[] isStrike;
+    Turn[] totalPineAmount = new Turn[10];
+    
 
     public int getTurns() 
     {
         return totalPineAmount.GetLength(0);
     }
 
-    public int[,] getTotalPineAmount() 
+    public Turn[] getTotalPineAmount() 
     {
         return totalPineAmount;
     }
-    public void setTotalPineAmount(int[,] pineAmount)
+    public void setTotalPineAmount(List<Turn> turns)
     {
-        this.totalPineAmount = pineAmount;
+        this.totalPineAmount = turns.ToArray();
     }
-    public int sumTurnPines(int turn)
+ 
+    public int getTotalScore()
     {
-        return totalPineAmount[turn, 0] + totalPineAmount[turn,1];
+        int totalScore = 0;
+        totalScore =+ this.sumAllPines();
+        totalScore = +this.sumSparePoints();
+        totalScore = +this.sumStrikePoints();
+
+        return totalScore;
     }
+    public int sumAllPines()
+    {
+        int result = 0;
+
+        for (int i = 0; i < totalPineAmount.Length; i++)
+        {
+            result += totalPineAmount[i].getTurnScore();
+        }
+        
+        return result;
+    }
+    public int sumSparePoints() 
+    {
+        int result = 0;
+        for (int i = 0; i < totalPineAmount.Length; i++)
+        {
+            int nextIndex = i + 1;
+            if (totalPineAmount[i].isSpare() && nextIndex < totalPineAmount.Length)
+            {
+                result += totalPineAmount[nextIndex].getTurnScore();
+            }
+        }
+        return result;
+    }
+    public int sumStrikePoints()
+    {
+        int result = 0;
+        for (int i = 0; i < totalPineAmount.Length; i++)
+        {
+            int next2Index = i + 2;
+            if (totalPineAmount[i].isStrike() && next2Index < totalPineAmount.Length)
+            {
+                result += totalPineAmount[next2Index -1].getTurnScore();
+                result += totalPineAmount[next2Index].getTurnScore();
+
+            }
+        }
+        return result;
+    }
+}
+public class Turn
+{
+    bool spare = false;
+    bool strike = false;
+    int[] throwedPines = new int [2];
+
+    public Turn(int firstShot, int secondShot) 
+    {   
+        throwedPines[0] = firstShot;
+        throwedPines[1] = secondShot;
+
+        detectSpare();
+        detectStrike();
+    }
+    public int[] getThrowedPines() 
+    {
+        return throwedPines;
+    }
+    public void setThrowedPines(int[] throwedPines)
+    {
+        this.throwedPines = throwedPines;
+    }
+    public int getTurnScore()
+    {
+        return throwedPines[0] + throwedPines[1];
+    }
+    public bool isSpare() 
+    {
+        return spare;
+    }
+    public bool isStrike()
+    {
+        return strike;
+    }
+    private void detectSpare() 
+    {
+        if (this.getTurnScore() == 10 && throwedPines[1] != 0)
+        {
+            spare = true;
+        }    
+    }
+    private void detectStrike()
+    {
+        if (this.getTurnScore() == 10 && throwedPines[1] == 0)
+        {
+            strike = true;
+        }
+    }
+
 }
