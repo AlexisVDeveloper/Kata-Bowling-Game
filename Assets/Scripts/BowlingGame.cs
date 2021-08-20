@@ -16,9 +16,9 @@ public class BowlingGame
     {
         return totalPineAmount;
     }
-    public void setTotalPineAmount(List<Turn> turns, int bonusShot = 0)
+    public void setTotalPineAmount(Turn [] turns, int bonusShot = 0)
     {
-        this.totalPineAmount = turns.ToArray();
+        this.totalPineAmount = turns;
         this.bonusShot = bonusShot;
     }
 

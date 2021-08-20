@@ -28,7 +28,7 @@ public class BowlingGameShould
 
         int bonusShotPines = 2;
 
-        bowlingGame.setTotalPineAmount(turns, 2);
+        bowlingGame.setTotalPineAmount(turns.ToArray(), 2);
     }
 
     [Test]
