@@ -15,18 +15,20 @@ public class BowlingGameShould
 
         List<Turn> turns = new List<Turn>(10);
 
-        turns.Add(new Turn(3, 7));
-        turns.Add(new Turn(10, 0));
-        turns.Add(new Turn(2, 0));
-        turns.Add(new Turn(3, 3));
-        turns.Add(new Turn(3, 4));
-        turns.Add(new Turn(10, 0));
-        turns.Add(new Turn(5, 5));
-        turns.Add(new Turn(2, 0));
-        turns.Add(new Turn(3, 3));
-        turns.Add(new Turn(3, 2));
+        turns.Add(new Turn(3, 7));   //10
+        turns.Add(new Turn(10, 0));  //30
+        turns.Add(new Turn(2, 0));   //34
+        turns.Add(new Turn(3, 3));   //40
+        turns.Add(new Turn(3, 4));   //47
+        turns.Add(new Turn(10, 0));  //57
+        turns.Add(new Turn(5, 5));   //77
+        turns.Add(new Turn(2, 3));   //84
+        turns.Add(new Turn(3, 3));   //90
+        turns.Add(new Turn(3, 2));   //95
 
-        bowlingGame.setTotalPineAmount(turns);
+        int bonusShotPines = 2;
+
+        bowlingGame.setTotalPineAmount(turns, 2);
     }
 
     [Test]
@@ -70,7 +72,7 @@ public class BowlingGameShould
     public void ScoreAllPinesWithoutStrikes()
     {
         //Then
-        Assert.AreEqual(68, bowlingGame.sumAllPines());
+        Assert.AreEqual(71, bowlingGame.sumAllPines());
     }
 
     [Test]
@@ -95,126 +97,8 @@ public class BowlingGameShould
         int totalScore = bowlingGame.getTotalScore();
         
         //Then
-        Assert.AreEqual(80, totalScore);
+        Assert.AreEqual(99, totalScore);
     }
 
 }
 
-public class BowlingGame 
-{
-    Turn[] totalPineAmount = new Turn[10];
-    
-
-    public int getTurns() 
-    {
-        return totalPineAmount.GetLength(0);
-    }
-
-    public Turn[] getTotalPineAmount() 
-    {
-        return totalPineAmount;
-    }
-    public void setTotalPineAmount(List<Turn> turns)
-    {
-        this.totalPineAmount = turns.ToArray();
-    }
- 
-    public int getTotalScore()
-    {
-        int totalScore = 0;
-        totalScore =+ this.sumAllPines();
-        totalScore = +this.sumSparePoints();
-        totalScore = +this.sumStrikePoints();
-
-        return totalScore;
-    }
-    public int sumAllPines()
-    {
-        int result = 0;
-
-        for (int i = 0; i < totalPineAmount.Length; i++)
-        {
-            result += totalPineAmount[i].getTurnScore();
-        }
-        
-        return result;
-    }
-    public int sumSparePoints() 
-    {
-        int result = 0;
-        for (int i = 0; i < totalPineAmount.Length; i++)
-        {
-            int nextIndex = i + 1;
-            if (totalPineAmount[i].isSpare() && nextIndex < totalPineAmount.Length)
-            {
-                result += totalPineAmount[nextIndex].getTurnScore();
-            }
-        }
-        return result;
-    }
-    public int sumStrikePoints()
-    {
-        int result = 0;
-        for (int i = 0; i < totalPineAmount.Length; i++)
-        {
-            int next2Index = i + 2;
-            if (totalPineAmount[i].isStrike() && next2Index < totalPineAmount.Length)
-            {
-                result += totalPineAmount[next2Index -1].getTurnScore();
-                result += totalPineAmount[next2Index].getTurnScore();
-
-            }
-        }
-        return result;
-    }
-}
-public class Turn
-{
-    bool spare = false;
-    bool strike = false;
-    int[] throwedPines = new int [2];
-
-    public Turn(int firstShot, int secondShot) 
-    {   
-        throwedPines[0] = firstShot;
-        throwedPines[1] = secondShot;
-
-        detectSpare();
-        detectStrike();
-    }
-    public int[] getThrowedPines() 
-    {
-        return throwedPines;
-    }
-    public void setThrowedPines(int[] throwedPines)
-    {
-        this.throwedPines = throwedPines;
-    }
-    public int getTurnScore()
-    {
-        return throwedPines[0] + throwedPines[1];
-    }
-    public bool isSpare() 
-    {
-        return spare;
-    }
-    public bool isStrike()
-    {
-        return strike;
-    }
-    private void detectSpare() 
-    {
-        if (this.getTurnScore() == 10 && throwedPines[1] != 0)
-        {
-            spare = true;
-        }    
-    }
-    private void detectStrike()
-    {
-        if (this.getTurnScore() == 10 && throwedPines[1] == 0)
-        {
-            strike = true;
-        }
-    }
-
-}
