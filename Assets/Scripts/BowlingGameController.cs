@@ -6,43 +6,35 @@ using UnityEngine.UI;
 
 public class BowlingGameController : MonoBehaviour
 {
-    public Text txtTurno, txtScore;
-    public InputField input;
-    public Button btnTirar;
+    [SerializeField]
+    private Text txtTurno, txtScore;
+    [SerializeField]
+    private InputField input;
+    [SerializeField]
+    private Button btnTirar;
 
     private BowlingGame bowlingGame;
     private bool isFirstShot = true;
     private int firstShotAux = 0;
     private int bonusShot = 0;
 
-    private List<Turn> gameTurns = new List<Turn>();
+    private List<Turn> gameTurns;
 
-    // Start is called before the first frame update
     void Start()
     {
         bowlingGame = new BowlingGame();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-
+        gameTurns = new List<Turn>();
     }
 
     public void Shoot()
     {
-
-
         int currenShot = Convert.ToInt32(input.text);
         
-        Turn turn;
         if (isFirstShot)
         {
-            if (currenShot == 10)
+            if (currenShot == 10 && gameTurns.Count < 10)
             {
-                turn = new Turn(10, 0);
-                gameTurns.Add(turn);
+                CreateNewTurn(currenShot, 0);
                 isFirstShot = true;
             }
             else 
@@ -53,36 +45,28 @@ public class BowlingGameController : MonoBehaviour
         }
         else // Si es el segundo tiro
         {
-            turn = new Turn(firstShotAux, currenShot);
-            gameTurns.Add(turn);
             isFirstShot = true;
-            if (gameTurns.Count == 9) 
-            {
-                
-            }
+            CreateNewTurn(firstShotAux, currenShot);
         }
-        string turnNumberAux = isFirstShot ? "1" : "2";
-        txtTurno.text = $"Turno: {gameTurns.Count + 1} Tiro: {turnNumberAux}";
 
-        if (gameTurns.Count == 9 && !isFirstShot) //temporal
+        if (gameTurns.Count >= 10) //temporal
+            FinalizeGame();
+        else 
         {
-            endGame();
+            string turnNumberAux = isFirstShot ? "1" : "2";
+            txtTurno.text = $"Turno: {gameTurns.Count + 1} Tiro: {turnNumberAux}";
         }
     }
 
-    private void endGame() {
-
+    private void FinalizeGame() 
+    {
         bowlingGame.setTotalPineAmount(gameTurns.ToArray(), bonusShot);
-
         txtScore.text = bowlingGame.getTotalScore().ToString();
-
         btnTirar.enabled = false;
-
     }
 
-    private void createTurn(int firstShot, int secondShot)
+    private void CreateNewTurn(int firstShot, int secondShot)
     {
-        
+        gameTurns.Add(new Turn(firstShot, secondShot));  
     } 
-    
 }
